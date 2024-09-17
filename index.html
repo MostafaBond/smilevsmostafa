@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smile & Darsh Forever</title>
+  <style>
+    body {
+      background-color: lightgray;
+      font-family: 'Arial', sans-serif;
+      text-align: center;
+    }
+
+    #board {
+      border-collapse: collapse;
+      margin: 20px auto;
+    }
+
+    #board td {
+      width: 50px;
+      height: 50px;
+      border: 1px solid black;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    #counters {
+      font-size: 20px;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Smile & Darsh Forever</h1>
+  <table id="board"></table>
+  <div id="counters">Smile: <span id="smileCounter">0</span> | Darsh: <span id="darshCounter">0</span></div>
+
+  <script>
+    let currentPlayer = 'Smile';
+    let smileCounter = 0;
+    let darshCounter = 0;
+    let winner = '';
+
+    function initializeGame() {
+      document.getElementById('smileCounter').textContent = smileCounter;
+      document.getElementById('darshCounter').textContent = darshCounter;
+      drawBoard();
+      currentPlayer = 'Smile';
+      winner = '';
+      if (currentPlayer === 'Darsh') {
+        playAsDarsh();
+      }
+    }
+
+    function drawBoard() {
+      const boardElement = document.getElementById('board');
+      boardElement.innerHTML = '';
+
+      for (let i = 0; i < 3; i++) {
+        const row = document.createElement('tr');
+        for (let j = 0; j < 3; j++) {
+          const cell = document.createElement('td');
+          cell.addEventListener('click', () => cellClicked(i, j));
+          row.appendChild(cell);
+        }
+        boardElement.appendChild(row);
+      }
+    }
+
+    function cellClicked(row, col) {
+      const cell = document.getElementById('board').rows[row].cells[col];
+      if (cell.textContent === '' && !winner) {
+        cell.textContent = currentPlayer === 'Smile' ? 'Smile' : 'Darsh';
+        checkWinner(row, col);
+        switchPlayer();
+        if (currentPlayer === 'Darsh' && !winner) {
+          playAsDarsh();
+        }
+      }
+    }
+
+    function switchPlayer() {
+      currentPlayer = currentPlayer === 'Smile' ? 'Darsh' : 'Smile';
+    }
+
+    function playAsDarsh() {
+      const emptyCells = getEmptyCells();
+      if (emptyCells.length > 0) {
+        const randomIndex = Math.floor(Math.random() * emptyCells.length);
+        const [row, col] = emptyCells[randomIndex];
+        document.getElementById('board').rows[row].cells[col].click();
+      }
+    }
+
+    function getEmptyCells() {
+      const emptyCells = [];
+      const board = document.getElementById('board');
+      for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+          if (board.rows[i].cells[j].textContent === '') {
+            emptyCells.push([i, j]);
+          }
+        }
+      }
+      return emptyCells;
+    }
+
+    function checkWinner(row, col) {
+      if (checkRow(row) || checkColumn(col) || checkDiagonals()) {
+        winner = currentPlayer;
+        updateCounters();
+        alert(`${winner} wins!`);
+        initializeGame();
+      } else if (isBoardFull()) {
+        alert('It\'s a tie!');
+        initializeGame();
+      }
+    }
+
+    function checkRow(row) {
+      const board = document.getElementById('board');
+      return board.rows[row].cells[0].textContent === currentPlayer &&
+        board.rows[row].cells[1].textContent === currentPlayer &&
+        board.rows[row].cells[2].textContent === currentPlayer;
+    }
+
+    function checkColumn(col) {
+      const board = document.getElementById('board');
+      return board.rows[0].cells[col].textContent === currentPlayer &&
+        board.rows[1].cells[col].textContent === currentPlayer &&
+        board.rows[2].cells[col].textContent === currentPlayer;
+    }
+
+    function checkDiagonals() {
+      const board = document.getElementById('board');
+      return (board.rows[0].cells[0].textContent === currentPlayer &&
+        board.rows[1].cells[1].textContent === currentPlayer &&
+        board.rows[2].cells[2].textContent === currentPlayer) ||
+        (board.rows[0].cells[2].textContent === currentPlayer &&
+          board.rows[1].cells[1].textContent === currentPlayer &&
+          board.rows[2].cells[0].textContent === currentPlayer);
+    }
+
+    function isBoardFull() {
+      const board = document.getElementById('board');
+      for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+          if (board.rows[i].cells[j].textContent === '') {
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+
+    function updateCounters() {
+      if (winner === 'Smile') {
+        smileCounter++;
+      } else if (winner === 'Darsh') {
+        darshCounter++;
+      }
+      document.getElementById('smileCounter').textContent = smileCounter;
+      document.getElementById('darshCounter').textContent = darshCounter;
+    }
+
+    // Initial setup
+    initializeGame();
+  </script>
+</body>
+</html>
